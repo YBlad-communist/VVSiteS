@@ -1,5 +1,4 @@
 import re
-import random
 import time
 import smtplib
 import ssl
@@ -10,7 +9,7 @@ import bleach
 import bcrypt
 import jwt
 from flask import (Blueprint, jsonify, request,
-                   session, current_app, make_response)
+                   current_app, make_response)
 
 from models.db import query, execute
 from middleware.auth import login_required
@@ -74,15 +73,6 @@ def validate_portfolio(data):
     return errors
 
 
-@api.route('/captcha')
-def get_captcha():
-    a = random.randint(1, 10)
-    b = random.randint(1, 10)
-    session['captcha_a'] = a
-    session['captcha_b'] = b
-    return jsonify({'a': a, 'b': b})
-
-
 @api.route('/contact', methods=['POST'])
 @contact_rate_limit
 def submit_contact():
@@ -91,14 +81,6 @@ def submit_contact():
     errors = validate_contact(data)
     if errors:
         return jsonify({'error': errors[0]}), 400
-
-    a = session.pop('captcha_a', None)
-    b = session.pop('captcha_b', None)
-    if a is None or b is None:
-        return jsonify({'error': 'Сессия истекла. Обновите капчу.'}), 400
-    captcha_answer = data.get('captcha')
-    if captcha_answer is None or int(captcha_answer) != (a + b):
-        return jsonify({'error': 'Неверный ответ на капчу'}), 400
 
     name = data['name']
     email = data['email']

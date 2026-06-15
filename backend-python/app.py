@@ -8,10 +8,10 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR.parent / 'frontend'
+
+load_dotenv(BASE_DIR / '.env')
 
 
 def create_app():
@@ -60,6 +60,10 @@ def create_app():
         if file_path.exists() and file_path.is_file():
             return send_from_directory(admin_dir, subpath)
         return send_from_directory(admin_dir, 'index.html')
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return '', 204
 
     @app.route('/')
     def frontend_index():

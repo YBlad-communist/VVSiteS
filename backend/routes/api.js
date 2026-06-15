@@ -21,8 +21,6 @@ function sanitizeInput(req, res, next) {
   next();
 }
 
-router.get('/captcha', (req, res) => contactController.getCaptcha(req, res));
-
 router.post('/contact', sanitizeInput, contactValidation, handleValidation, (req, res) => contactController.submit(req, res));
 
 router.get('/services', (req, res) => serviceController.getAll(req, res));

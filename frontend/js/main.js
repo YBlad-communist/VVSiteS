@@ -116,19 +116,6 @@ function getIcon(name) {
   return icons[name] || '💻';
 }
 
-async function loadCaptcha() {
-  try {
-    const res = await fetch(`${API}/captcha`);
-    const data = await res.json();
-    document.getElementById('captchaA').textContent = data.a;
-    document.getElementById('captchaB').textContent = data.b;
-    document.getElementById('captchaLabel').textContent = `Сколько будет ${data.a} + ${data.b}?`;
-    document.getElementById('captcha').value = '';
-  } catch {
-    console.warn('Captcha load failed');
-  }
-}
-
 function showFieldError(id, message) {
   const el = document.getElementById(id);
   el.textContent = message;
@@ -150,7 +137,7 @@ function hideFormStatus() {
   el.className = 'form-status';
 }
 
-function validateField(name, email, message, captcha) {
+function validateField(name, email, message) {
   let valid = true;
   if (!name || name.length < 2) {
     showFieldError('nameError', 'Имя должно содержать минимум 2 символа');
@@ -171,12 +158,6 @@ function validateField(name, email, message, captcha) {
   } else {
     showFieldError('messageError', '');
   }
-  if (!captcha && captcha !== 0) {
-    showFieldError('captchaError', 'Решите пример');
-    valid = false;
-  } else {
-    showFieldError('captchaError', '');
-  }
   return valid;
 }
 
@@ -187,9 +168,7 @@ document.getElementById('contactForm').addEventListener('submit', async e => {
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
   const message = document.getElementById('message').value.trim();
-  const captcha = document.getElementById('captcha').value.trim();
-
-  if (!validateField(name, email, message, captcha)) return;
+  if (!validateField(name, email, message)) return;
 
   const btn = document.getElementById('submitBtn');
   btn.classList.add('loading');
@@ -199,7 +178,7 @@ document.getElementById('contactForm').addEventListener('submit', async e => {
     const res = await fetch(`${API}/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, message, captcha: parseInt(captcha, 10) }),
+      body: JSON.stringify({ name, email, message }),
     });
     const data = await res.json();
     if (data.success) {
@@ -207,9 +186,7 @@ document.getElementById('contactForm').addEventListener('submit', async e => {
       document.getElementById('contactForm').reset();
     } else {
       showFormStatus(data.error || 'Ошибка отправки. Попробуйте позже.', 'error');
-      if (data.error?.toLowerCase().includes('капч') || data.error?.toLowerCase().includes('captcha')) {
-        loadCaptcha();
-      }
+
     }
   } catch {
     showFormStatus('Ошибка соединения. Проверьте подключение к интернету.', 'error');
@@ -218,8 +195,6 @@ document.getElementById('contactForm').addEventListener('submit', async e => {
     btn.disabled = false;
   }
 });
-
-document.getElementById('refreshCaptcha').addEventListener('click', loadCaptcha);
 
 loadServices();
 loadPortfolio();
