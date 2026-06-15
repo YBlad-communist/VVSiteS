@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - app-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - ADMIN_LOGIN=${ADMIN_LOGIN:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
+      - SMTP_HOST=${SMTP_HOST:-smtp.ethereal.email}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+
+volumes:
+  app-data:
