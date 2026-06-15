@@ -49,15 +49,6 @@ if (servicesCount === 0) {
   insert.run('Поддержка и доработка', 'Техническая поддержка сайта, добавление функционала, оптимизация скорости.', 'от 10 000 ₽', 'settings');
 }
 
-const stmtPortfolio = db.prepare('SELECT COUNT(*) as count FROM portfolio');
-const { count: portfolioCount } = stmtPortfolio.get();
 
-if (portfolioCount === 0) {
-  const insert = db.prepare('INSERT INTO portfolio (title, description, image, link) VALUES (?, ?, ?, ?)');
-  insert.run('Интернет-магазин "Маркет"', 'Полноценный интернет-магазин с корзиной и оплатой.', '/api/placeholder/600/400?text=Market', 'https://example.com');
-  insert.run('Сайт-визитка "СтройМастер"', 'Лендинг с формой заявки и галереей работ.', '/api/placeholder/600/400?text=StroyMaster', 'https://example.com');
-  insert.run('Корпоративный портал "БизнесПро"', 'Многостраничный сайт с личным кабинетом.', '/api/placeholder/600/400?text=BiznesPro', 'https://example.com');
-  insert.run('Лендинг "ТурПутешествия"', 'Красочный лендинг с анимациями и интеграцией карт.', '/api/placeholder/600/400?text=TurPuteshestviya', 'https://example.com');
-}
 
 module.exports = db;

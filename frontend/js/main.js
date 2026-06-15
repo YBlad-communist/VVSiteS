@@ -78,6 +78,18 @@ async function loadPortfolio() {
   try {
     const res = await fetch(`${API}/portfolio`);
     const items = await res.json();
+    if (!items.length) {
+      grid.innerHTML = `
+        <div class="portfolio-empty reveal">
+          <div class="empty-icon">📭</div>
+          <h3>Пока нет проектов</h3>
+          <p>Заказов ещё не было, но вы можете это исправить!<br>Оставьте заявку, и мы создадим сайт вашей мечты.</p>
+          <a href="#contact" class="btn btn-primary" style="margin-top:16px">Оставить заявку</a>
+        </div>
+      `;
+      document.querySelectorAll('#portfolioGrid .reveal').forEach(el => observer.observe(el));
+      return;
+    }
     grid.innerHTML = items.map(p => `
       <div class="portfolio-card reveal">
         <div class="portfolio-image">📁</div>
