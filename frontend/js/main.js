@@ -16,22 +16,16 @@ document.querySelectorAll('.nav-link').forEach(link => {
 });
 
 const navbar = document.getElementById('navbar');
-let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
-  const currentScroll = window.pageYOffset;
-  if (currentScroll > 50) {
+  if (window.pageYOffset > 50) {
     navbar.classList.add('scrolled');
   } else {
     navbar.classList.remove('scrolled');
   }
-  lastScroll = currentScroll;
 });
 
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: '0px 0px -50px 0px',
-};
+const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -48,9 +42,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('click', e => {
     e.preventDefault();
     const target = document.querySelector(link.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
 
@@ -59,6 +51,7 @@ async function loadServices() {
   try {
     const res = await fetch(`${API}/services`);
     const services = await res.json();
+    if (!res.ok) throw new Error('Ошибка');
     grid.innerHTML = services.map(s => `
       <div class="service-card reveal">
         <div class="service-icon" style="background:rgba(129,140,248,.12);color:#818cf8">${getIcon(s.icon)}</div>
@@ -78,6 +71,7 @@ async function loadPortfolio() {
   try {
     const res = await fetch(`${API}/portfolio`);
     const items = await res.json();
+    if (!res.ok) throw new Error('Ошибка');
     if (!items.length) {
       grid.innerHTML = `
         <div class="portfolio-empty reveal">
@@ -107,26 +101,21 @@ async function loadPortfolio() {
 }
 
 function getIcon(name) {
-  const icons = {
-    code: '💻',
-    palette: '🎨',
-    'trending-up': '📈',
-    settings: '⚙️',
-  };
+  const icons = { code: '💻', palette: '🎨', 'trending-up': '📈', settings: '⚙️' };
   return icons[name] || '💻';
 }
 
-function showFieldError(id, message) {
+function showFieldError(id, msg) {
   const el = document.getElementById(id);
-  el.textContent = message;
-  el.style.display = message ? 'block' : 'none';
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
   const input = el.closest('.form-group')?.querySelector('input, textarea');
-  if (input) input.classList.toggle('error', !!message);
+  if (input) input.classList.toggle('error', !!msg);
 }
 
-function showFormStatus(message, type) {
+function showFormStatus(msg, type) {
   const el = document.getElementById('formStatus');
-  el.textContent = message;
+  el.textContent = msg;
   el.className = `form-status ${type}`;
   el.style.display = 'block';
 }
@@ -137,23 +126,16 @@ function hideFormStatus() {
   el.className = 'form-status';
 }
 
-function validateField(name, email, message) {
+function validateField(name, message) {
   let valid = true;
   if (!name || name.length < 2) {
-    showFieldError('nameError', 'Имя должно содержать минимум 2 символа');
+    showFieldError('nameError', 'Имя должно быть от 2 символов');
     valid = false;
   } else {
     showFieldError('nameError', '');
   }
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailRe.test(email)) {
-    showFieldError('emailError', 'Введите корректный email');
-    valid = false;
-  } else {
-    showFieldError('emailError', '');
-  }
-  if (!message || message.length < 10) {
-    showFieldError('messageError', 'Сообщение должно содержать минимум 10 символов');
+  if (!message || message.length < 5) {
+    showFieldError('messageError', 'Напишите хотя бы пару слов о задаче');
     valid = false;
   } else {
     showFieldError('messageError', '');
@@ -166,9 +148,11 @@ document.getElementById('contactForm').addEventListener('submit', async e => {
   hideFormStatus();
 
   const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const telegram = document.getElementById('telegram').value.trim();
   const message = document.getElementById('message').value.trim();
-  if (!validateField(name, email, message)) return;
+
+  if (!validateField(name, message)) return;
 
   const btn = document.getElementById('submitBtn');
   btn.classList.add('loading');
@@ -178,18 +162,17 @@ document.getElementById('contactForm').addEventListener('submit', async e => {
     const res = await fetch(`${API}/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, message }),
+      body: JSON.stringify({ name, phone, telegram, message }),
     });
     const data = await res.json();
     if (data.success) {
-      showFormStatus('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.', 'success');
+      showFormStatus('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами.', 'success');
       document.getElementById('contactForm').reset();
     } else {
       showFormStatus(data.error || 'Ошибка отправки. Попробуйте позже.', 'error');
-
     }
   } catch {
-    showFormStatus('Ошибка соединения. Проверьте подключение к интернету.', 'error');
+    showFormStatus('Ошибка соединения. Проверьте подключение.', 'error');
   } finally {
     btn.classList.remove('loading');
     btn.disabled = false;
