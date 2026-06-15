@@ -1,5 +1,5 @@
 {
-  "name": "webstudio-backend",
+  "name": "vvsites-backend",
   "version": "1.0.0",
   "description": "Backend for web studio business card site",
   "main": "server.js",
