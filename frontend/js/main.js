@@ -101,7 +101,7 @@ async function loadPortfolio() {
 }
 
 function getIcon(name) {
-  const icons = { code: '💻', palette: '🎨', 'trending-up': '📈', settings: '⚙️' };
+  const icons = { landing: '🚀', globe: '🌐', building: '🏢', cart: '🛒', layout: '📋' };
   return icons[name] || '💻';
 }
 
