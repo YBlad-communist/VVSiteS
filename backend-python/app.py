@@ -3,7 +3,7 @@ from pathlib import Path
 
 import bcrypt
 from dotenv import load_dotenv
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -46,7 +46,11 @@ def create_app():
     app.register_blueprint(api_blueprint)
 
     from models.db import init_db
-    init_db()
+    try:
+        init_db()
+        print('Database initialized successfully')
+    except Exception as e:
+        print(f'ERROR initializing database: {e}')
 
     @app.route('/admin')
     @app.route('/admin/')
@@ -60,6 +64,11 @@ def create_app():
         if file_path.exists() and file_path.is_file():
             return send_from_directory(admin_dir, subpath)
         return send_from_directory(admin_dir, 'index.html')
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        print(f'INTERNAL SERVER ERROR: {error}')
+        return jsonify({'error': 'Внутренняя ошибка сервера'}), 500
 
     @app.route('/favicon.ico')
     def favicon():

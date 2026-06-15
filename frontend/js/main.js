@@ -198,4 +198,3 @@ document.getElementById('contactForm').addEventListener('submit', async e => {
 
 loadServices();
 loadPortfolio();
-loadCaptcha();
