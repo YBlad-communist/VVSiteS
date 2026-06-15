@@ -103,3 +103,48 @@ def admin_required(f):
 @admin_required
 def admin_contacts():
     return jsonify(query('SELECT * FROM contacts ORDER BY created_at DESC'))
+
+
+@api.route('/admin/portfolio', methods=['GET', 'POST'])
+@admin_required
+def admin_portfolio():
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        title = (data.get('title') or '').strip()
+        description = (data.get('description') or '').strip()
+        image = (data.get('image') or '').strip()
+        link = (data.get('link') or '').strip()
+
+        if not title:
+            return jsonify({'error': 'Название обязательно'}), 400
+
+        lid = execute(
+            'INSERT INTO portfolio (title, description, image, link) VALUES (?, ?, ?, ?)',
+            (title, description, image, link)
+        )
+        return jsonify({'success': True, 'id': lid})
+
+    return jsonify(query('SELECT * FROM portfolio ORDER BY id DESC'))
+
+
+@api.route('/admin/portfolio/<int:pid>', methods=['PUT', 'DELETE'])
+@admin_required
+def admin_portfolio_item(pid):
+    if request.method == 'DELETE':
+        execute('DELETE FROM portfolio WHERE id=?', (pid,))
+        return jsonify({'success': True})
+
+    data = request.get_json(silent=True) or {}
+    title = (data.get('title') or '').strip()
+    description = (data.get('description') or '').strip()
+    image = (data.get('image') or '').strip()
+    link = (data.get('link') or '').strip()
+
+    if not title:
+        return jsonify({'error': 'Название обязательно'}), 400
+
+    execute(
+        'UPDATE portfolio SET title=?, description=?, image=?, link=? WHERE id=?',
+        (title, description, image, link, pid)
+    )
+    return jsonify({'success': True})
