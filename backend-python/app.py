@@ -3,7 +3,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, send_from_directory, jsonify
-from flask_cors import CORS
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR.parent / 'frontend'
@@ -18,8 +17,6 @@ def create_app():
     app.config['ADMIN_PASSWORD'] = os.getenv('ADMIN_PASSWORD', 'admin123')
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-
-    CORS(app, supports_credentials=True)
 
     from routes.api import api as api_blueprint
     app.register_blueprint(api_blueprint)
@@ -65,7 +62,12 @@ def create_app():
     return app
 
 
-app = create_app()
+try:
+    app = create_app()
+except Exception as e:
+    import sys
+    print(f'FATAL ERROR creating app: {e}', file=sys.stderr)
+    raise
 
 if __name__ == '__main__':
     app.run(
