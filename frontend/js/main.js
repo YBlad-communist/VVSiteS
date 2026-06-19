@@ -57,7 +57,6 @@ async function loadServices() {
         <div class="service-icon" style="background:rgba(129,140,248,.12);color:#818cf8">${getIcon(s.icon)}</div>
         <h3>${s.title}</h3>
         <p>${s.description}</p>
-        <div class="service-price">${s.price}</div>
       </div>
     `).join('');
     document.querySelectorAll('#servicesGrid .reveal').forEach(el => observer.observe(el));
